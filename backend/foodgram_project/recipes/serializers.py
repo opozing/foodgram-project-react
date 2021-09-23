@@ -1,16 +1,17 @@
 from rest_framework import serializers
 from .models import Tag, Ingredient, Recipe, RecipeIngredient
-from django.contrib.auth import get_user_model
+from users.serializers import UserSerializer
+# from django.contrib.auth import get_user_model
 
-User = get_user_model()
+# User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор модели Юзер."""
+# class UserSerializer(serializers.ModelSerializer):
+#     """Сериализатор модели Юзер."""
 
-    class Meta:
-        model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name')
+#     class Meta:
+#         model = User
+#         fields = ('email', 'id', 'username', 'first_name', 'last_name')
 
 
 class TagSerializer(serializers.ModelSerializer):
