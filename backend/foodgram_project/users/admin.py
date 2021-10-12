@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import Subscription
 
-# Register your models here.
+
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'author', 'follower')
+    empty_value_display = "-пусто-"
+
+
+admin.site.register(Subscription, SubscriptionAdmin)

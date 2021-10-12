@@ -7,10 +7,11 @@ from . import views
 User = get_user_model()
 
 router = DefaultRouter()
-router.register('', views.UserViewSet)
+router.register('users', views.ReUserViewSet)
+# router.register('users/subscriptions', views.SubscriptionViewSet)
 
 
 urlpatterns = [
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
-    path('<str:pk>/', views.UserDetailViewSet.as_view({'get': 'list'})),
 ]
