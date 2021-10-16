@@ -126,6 +126,7 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': (
     #     'rest_framework.permissions.AllowAny',
     # ),
+    'PAGE_SIZE': 5,
 }
 
 DJOSER = {

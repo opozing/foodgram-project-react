@@ -1,21 +1,26 @@
-from rest_framework import viewsets, permissions
+from rest_framework import permissions
 from django.contrib.auth import get_user_model
-from .serializers import (ReUserSerializer, UserCreateSerializer, SubscriptionSerializer)
+from .serializers import (ReUserSerializer,
+                          SubscriptionSerializer)
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from djoser.serializers import UserSerializer
+# from djoser.serializers import UserSerializer
 from rest_framework import status
 from .models import Subscription
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 
 User = get_user_model()
 
 
 class ReUserViewSet(UserViewSet):
+    """
+    Общий вьюсет для всех эндпоинтов /users/.
+    """
     queryset = User.objects.all()
     serializer_class = ReUserSerializer
-
+    pagination_class = PageNumberPagination
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
@@ -23,17 +28,25 @@ class ReUserViewSet(UserViewSet):
         Отображение страницы с подписками авторизованного пользователя.
         """
         user = self.request.user
-        request = Subscription.objects.filter(follower=user)
-        serializer = SubscriptionSerializer(request, many=True)
+        context = {'request': request}
+        queryset = Subscription.objects.filter(follower=user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SubscriptionSerializer(page, context=context,
+                                                many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = SubscriptionSerializer(queryset, context=context,
+                                            many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['GET', 'DELETE'])
+    @action(detail=True, methods=['GET', 'DELETE'],
+            permission_classes=[permissions.IsAuthenticated])
     def subscribe(self, request, id):
         """
         Метод подписки и отписки от выбранного автора.
         """
-        author = get_object_or_404(User, id=id)
-        follower = request.user
+        author = get_object_or_404(User, id=id).id
+        follower = request.user.id
         exist = Subscription.objects.filter(author=author,
                                             follower=request.user).exists()
 
@@ -41,8 +54,8 @@ class ReUserViewSet(UserViewSet):
             data = {'author': author, 'follower': follower}
             context = {'request': request}
             serializer = SubscriptionSerializer(data=data, context=context)
-            serializer.is_valid()
-            serializer.save(author=author, follower=follower)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         elif request.method == 'DELETE' and exist:

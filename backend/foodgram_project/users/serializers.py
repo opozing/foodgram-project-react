@@ -1,4 +1,4 @@
-from rest_framework import serializers, validators, permissions
+from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from .models import Subscription
 from django.contrib.auth import get_user_model
@@ -10,9 +10,21 @@ User = get_user_model()
 class ReUserSerializer(UserSerializer):
     """Сериализатор модели Юзер GET запрос."""
 
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
+
+    def get_is_subscribed(self, obj):
+        """
+        Статус подписки пользователя на юзеров.
+        """
+        request_user = self.context.get('request').user.id
+        queryset = Subscription.objects.filter(author=obj.id,
+                                               follower=request_user).exists()
+        return queryset
 
 
 class ReUserCreateSerializer(UserCreateSerializer):
@@ -28,39 +40,67 @@ class ReUserCreateSerializer(UserCreateSerializer):
 
 
 class RecipeInSubscriptionSerializer(serializers.ModelSerializer):
+    """
+    Внутреннее Поле Рецепты на странице с подписками пользователя.
+    """
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class SubscriptionSerializer(ReUserSerializer):
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели Подписок.
+    """
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
 
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'recipes', 'recipes_count')
-        # fields = ('__all__')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count', 'author',
+                  'follower')
+        extra_kwargs = {'author': {'write_only': True},
+                        'follower': {'write_only': True}}
+
+    def get_is_subscribed(self, obj):
+        """
+        Статус подписки пользователя на юзеров.
+        """
+        request_user = self.context.get('request').user.id
+        queryset = Subscription.objects.filter(author=obj.author,
+                                               follower=request_user).exists()
+        return queryset
 
     def get_recipes(self, obj):
+        """
+        Внутреннее поле Рецепты на странице подписок пользователя.
+        """
         queryset = Recipe.objects.filter(author=obj.author.id)
         serializer = RecipeInSubscriptionSerializer(queryset, many=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
+        """
+        Количество рецептов у автора на которого подписан пользователь.
+        """
         queryset = Recipe.objects.filter(author=obj.author.id).count()
         return queryset
 
-    # def validate(self, data):
-
-    #     if data['author'] == data['follower']:
-    #         raise serializers.ValidationError('Нельзя подписаться на себя!')
-    #     if Subscription.objects.filter(author=data['author'],
-    #                                    follower=data['follower']).exists():
-    #         raise serializers.ValidationError('Вы уже подписаны!')
+    def validate(self, data):
+        """
+        Валидация при создании подписки на юзера.
+        """
+        if data['author'] == data['follower']:
+            raise serializers.ValidationError('Нельзя подписаться на себя!')
+        if Subscription.objects.filter(author=data['author'],
+                                       follower=data['follower']).exists():
+            raise serializers.ValidationError('Вы уже подписаны!')
+        return data
