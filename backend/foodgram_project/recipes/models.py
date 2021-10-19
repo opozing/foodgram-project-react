@@ -31,9 +31,12 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    tags = models.ManyToManyField(Tag)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
+    tags = models.ManyToManyField(Tag, verbose_name='Тэг')
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               verbose_name='Автор')
+    ingredients = models.ManyToManyField(Ingredient,
+                                         through='RecipeIngredient',
+                                         verbose_name='Ингредиенты')
     name = models.CharField('Название', max_length=200)
     image = models.ImageField('Изображение')
     text = models.TextField('Текст')
@@ -59,5 +62,40 @@ class RecipeIngredient(models.Model):
                                    related_name='amount')
     amount = models.PositiveSmallIntegerField()
 
+    class Meta:
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
+
     def __str__(self):
         return str(self.amount)
+
+
+class FavoriteRecipe(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             verbose_name='Пользователь')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Избранный'
+        verbose_name_plural = 'Избранные'
+
+        constraints = [models.UniqueConstraint(fields=['user', 'recipe'],
+                                               name='unique_favorite')]
+
+    def __str__(self):
+        return f'рецепт {self.recipe} в избранном пользователя {self.user}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             verbose_name='Пользователь')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               verbose_name='Рецепт')
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'
+
+        constraints = [models.UniqueConstraint(fields=['user', 'recipe'],
+                                               name='unique_shoppingcart')]

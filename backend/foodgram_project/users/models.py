@@ -1,21 +1,21 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-
 User = get_user_model()
 
 
 class Subscription(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='following')
+                               related_name='following',
+                               verbose_name='Автор')
     follower = models.ForeignKey(User, on_delete=models.CASCADE,
-                                 related_name='follower')
+                                 related_name='follower',
+                                 verbose_name='Подписчик')
 
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
 
-        # проверка на уже существующую подписку
         constraints = [models.UniqueConstraint(fields=['author', 'follower'],
                                                name='unique_follow')]
 

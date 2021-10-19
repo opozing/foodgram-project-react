@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Tag, Ingredient, Recipe, RecipeIngredient
+from .models import Tag, Ingredient, Recipe, RecipeIngredient, FavoriteRecipe
 from users.serializers import ReUserSerializer
+# from drf_extra_fields.fields import Base64ImageField
 
 from django.contrib.auth import get_user_model
 
@@ -34,10 +35,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    # id = serializers.ReadOnlyField()
-    # name = serializers.ReadOnlyField()
-    # measurement_unit = serializers.ReadOnlyField()
-    # amount = serializers.StringRelatedField()
 
     class Meta:
         model = RecipeIngredient
@@ -49,11 +46,43 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     ingredients = RecipeIngredientSerializer(source='recipeingredient_set',
                                              many=True)
-    # ingredients = RecipeIngredientSeriaizer(many=True)
     tags = TagSerializer(many=True)
     author = ReUserSerializer()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image', 'text', 'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'name', 'image', 'text', 'cooking_time')
 
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        queryset = FavoriteRecipe.objects.filter(user=user.id,
+                                                 recipe=obj.id).exists()
+        return queryset
+
+
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели Избранные.
+    """
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    # image = Base64ImageField(source='recipe.image', read_only=True)
+    image = serializers.ImageField(source='recipe.image', read_only=True)
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = ('id', 'name', 'image', 'cooking_time', 'user', 'recipe')
+        extra_kwargs = {'user': {'write_only': True},
+                        'recipe': {'write_only': True}}
+
+    def validate(self, data):
+        """
+        Валидация при добавлении рецепта в избранное.
+        """
+        if FavoriteRecipe.objects.filter(user=data['user'],
+                                         recipe=data['recipe']).exists():
+            raise serializers.ValidationError('Рецепт уже есть в избранном!')
+        return data
