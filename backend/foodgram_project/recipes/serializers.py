@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Tag, Ingredient, Recipe, RecipeIngredient, FavoriteRecipe
+from .models import (Tag, Ingredient, Recipe, RecipeIngredient, FavoriteRecipe,
+                     ShoppingCart)
 from users.serializers import ReUserSerializer
 # from drf_extra_fields.fields import Base64ImageField
 
@@ -85,4 +86,30 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         if FavoriteRecipe.objects.filter(user=data['user'],
                                          recipe=data['recipe']).exists():
             raise serializers.ValidationError('Рецепт уже есть в избранном!')
+        return data
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели Список Покупок.
+    """
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image', read_only=True)
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('id', 'name', 'image', 'cooking_time', 'user', 'recipe')
+        extra_kwargs = {'user': {'write_only': True},
+                        'recipe': {'write_only': True}}
+
+    def validate(self, data):
+        """
+        Валидация при добавлении рецепта в список покупок.
+        """
+        if ShoppingCart.objects.filter(user=data['user'],
+                                       recipe=data['recipe']).exists():
+            raise serializers.ValidationError('Рецепт уже есть в списке'
+                                              ' покупок!')
         return data

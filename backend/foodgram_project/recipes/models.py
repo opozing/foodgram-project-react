@@ -38,7 +38,7 @@ class Recipe(models.Model):
                                          through='RecipeIngredient',
                                          verbose_name='Ингредиенты')
     name = models.CharField('Название', max_length=200)
-    image = models.ImageField('Изображение')
+    image = models.ImageField('Изображение', upload_to='recipes/images')
     text = models.TextField('Текст')
     cooking_time = models.PositiveSmallIntegerField('Время приготовления')
 
@@ -84,7 +84,7 @@ class FavoriteRecipe(models.Model):
                                                name='unique_favorite')]
 
     def __str__(self):
-        return f'рецепт {self.recipe} в избранном пользователя {self.user}'
+        return f'рецепт {self.recipe} в избранном  {self.user}'
 
 
 class ShoppingCart(models.Model):
@@ -99,3 +99,6 @@ class ShoppingCart(models.Model):
 
         constraints = [models.UniqueConstraint(fields=['user', 'recipe'],
                                                name='unique_shoppingcart')]
+
+    def __str__(self):
+        return f'рецепт {self.recipe} в списке покупок  {self.user}'

@@ -43,7 +43,7 @@ class ReUserViewSet(UserViewSet):
             permission_classes=[permissions.IsAuthenticated])
     def subscribe(self, request, id):
         """
-        Метод подписки и отписки от выбранного автора.
+        Подписка и отписка от выбранного автора.
         """
         author = get_object_or_404(User, id=id).id
         follower = request.user.id
