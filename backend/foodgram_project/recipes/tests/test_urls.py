@@ -1,17 +1,26 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from recipes.models import Recipe
+from recipes.models import Recipe, Tag, Ingredient
 from rest_framework.test import APIClient
 
 
 class StaticURLTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.tag = Tag.objects.create(id=1)
+        cls.ingredient = Ingredient.objects.create(id=1)
+
     def setUp(self):
         self.guest_client = Client()
 
     def test_static_urls_unauthorized_user(self):
         url_names = {
             '/api/tags/': 200,
+            '/api/tags/1/': 200,
             '/api/ingredients/': 200,
+            '/api/ingredients/1/': 200,
         }
 
         for url, status in url_names.items():
@@ -55,6 +64,8 @@ class RecipesURLTests(TestCase):
         """Доступность страниц /recipes/ Aвторизованному юзеру"""
 
         url_names = {
+            '/api/recipes/': 200,
+            '/api/recipes/1/': 200,
             '/api/recipes/1/favorite/': 201,
             '/api/recipes/1/shopping_cart/': 201
         }

@@ -84,4 +84,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
         elif request.method == 'DELETE' and exist:
             ShoppingCart.objects.get(user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Этого рецепта нет в списке покупок!'})
+        return Response({'errors': 'Этого рецепта нет в списке покупок!'},
+                        status=status.HTTP_400_BAD_REQUEST)

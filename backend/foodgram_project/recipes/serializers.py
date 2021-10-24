@@ -69,7 +69,6 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
     """
     id = serializers.ReadOnlyField(source='recipe.id')
     name = serializers.ReadOnlyField(source='recipe.name')
-    # image = Base64ImageField(source='recipe.image', read_only=True)
     image = serializers.ImageField(source='recipe.image', read_only=True)
     cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
 
