@@ -14,6 +14,7 @@ class UrlsViewsTests(TestCase):
                                        password='test')
         cls.url_users = ('/api/users/')
         cls.url_users2 = ('/api/users/2/')
+        cls.url_users1_subscribe = ('/api/users/1/subscribe/')
         cls.url_users2_subscribe = ('/api/users/2/subscribe/')
 
         cls.user2_create_data = {
@@ -131,4 +132,12 @@ class UrlsViewsTests(TestCase):
                                           data=self.user2_create_data)
         self.assertEqual(Subscription.objects.count(), 0)
         response = self.authorized_client.delete(self.url_users2_subscribe)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_self_subscription_authorized_user(self):
+        """
+        Проверка создания подписки на себя самого авторизованным юзером.
+        """
+        self.assertEqual(Subscription.objects.count(), 0)
+        response = self.authorized_client.get(self.url_users1_subscribe)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
