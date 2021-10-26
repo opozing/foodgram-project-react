@@ -1,9 +1,6 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.contrib.auth.models import User
-from recipes.models import (Recipe, FavoriteRecipe, ShoppingCart,
-                            Tag)
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
+from recipes.models import (Recipe, FavoriteRecipe, ShoppingCart)
 from recipes.serializers import (ShoppingCartSerializer,
                                  FavoriteRecipeSerializer)
 
@@ -19,10 +16,6 @@ class RecipesSerializerTests(TestCase):
                                            author=cls.user)
 
     def setUp(self):
-        # self.guest_client = Client()
-        # self.authorized_client = APIClient()
-        # self.authorized_client.force_login(self.user)
-        # self.authorized_client.force_authenticate(self.user)
 
         self.data = {
             'id': self.recipe.id,
@@ -32,9 +25,9 @@ class RecipesSerializerTests(TestCase):
             'recipe': self.recipe.id
         }
 
-    def test_favoriteserializer_create_object(self):
+    def test_favorite_serializer_create_object(self):
         """
-        Проверка добавления рецепта в избранные.
+        Проверка добавления рецепта в избранные сериализатором.
         """
         serializer = FavoriteRecipeSerializer(data=self.data)
         serializer.is_valid(raise_exception=True)
@@ -42,7 +35,7 @@ class RecipesSerializerTests(TestCase):
         self.assertEqual(FavoriteRecipe.objects.count(), 1)
         self.assertEqual(FavoriteRecipe.objects.get().recipe, self.recipe)
 
-    def test_favoriteserializer_create_double(self):
+    def test_favorite_serializer_create_double(self):
         """
         Проверка невозможности добавления рецепта в избранные дважды.
         """

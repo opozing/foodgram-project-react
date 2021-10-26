@@ -140,4 +140,5 @@ class UrlsViewsTests(TestCase):
         """
         self.assertEqual(Subscription.objects.count(), 0)
         response = self.authorized_client.get(self.url_users1_subscribe)
+        self.assertEqual(Subscription.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

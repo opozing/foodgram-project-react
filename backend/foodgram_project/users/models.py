@@ -18,6 +18,3 @@ class Subscription(models.Model):
 
         constraints = [models.UniqueConstraint(fields=['author', 'follower'],
                                                name='unique_follow')]
-
-    # def __str__(self):
-    #     return str(self.id)
