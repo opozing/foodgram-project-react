@@ -57,9 +57,13 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    """
+    Модель количества ингредиентов в каком либо рецепте.
+    """
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='recipe_ingredient')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,
-                                   related_name='amount')
+                                   related_name='recipe_ingredient')
     amount = models.PositiveSmallIntegerField()
 
     class Meta:

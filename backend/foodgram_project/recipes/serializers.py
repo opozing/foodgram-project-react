@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import (Tag, Ingredient, Recipe, RecipeIngredient, FavoriteRecipe,
                      ShoppingCart)
+
 from users.serializers import ReUserSerializer
-# from drf_extra_fields.fields import Base64ImageField
 
 from django.contrib.auth import get_user_model
 
@@ -45,21 +45,49 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор модели Рецепт."""
 
-    ingredients = RecipeIngredientSerializer(source='recipeingredient_set',
+    ingredients = RecipeIngredientSerializer(source='recipe_ingredient',
                                              many=True)
     tags = TagSerializer(many=True)
     author = ReUserSerializer()
+
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
-                  'name', 'image', 'text', 'cooking_time')
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time')
+
+    def validate(self, data):
+        """
+        Валидация создания рецепта.
+        """
+        if data['cooking_time'] < 1:
+            raise serializers.ValidationError(
+                'Время приготовления указано не верно!.')
+        if Recipe.objects.get(name=data['name']).exists() and (
+                self.context['request'].method == 'POST'):
+            raise serializers.ValidationError(
+                'Такой рецепт уже существует')
+        return data
 
     def get_is_favorited(self, obj):
+        """
+        Проверка добавлен ли рецепт в избранное.
+        """
         user = self.context.get('request').user
         queryset = FavoriteRecipe.objects.filter(user=user.id,
                                                  recipe=obj.id).exists()
+        return queryset
+
+    def get_is_in_shopping_cart(self, obj):
+        """
+        Проверка добавлен ли рецепт в список покупок.
+        """
+        user = self.context.get('request').user
+        queryset = ShoppingCart.objects.filter(user=user.id,
+                                               recipe=obj.id).exists()
         return queryset
 
 
