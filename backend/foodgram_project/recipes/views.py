@@ -11,6 +11,8 @@ from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -37,8 +39,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly]
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+    #                       IsOwnerOrReadOnly]
+    pagination_class = PageNumberPagination
+    PageNumberPagination.page_size_query_param = 'limit'
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

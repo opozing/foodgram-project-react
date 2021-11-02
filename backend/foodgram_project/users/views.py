@@ -20,7 +20,6 @@ class ReUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = ReUserSerializer
     pagination_class = PageNumberPagination
-    # PageNumberPagination.page_size = 1
     PageNumberPagination.page_size_query_param = 'limit'
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
