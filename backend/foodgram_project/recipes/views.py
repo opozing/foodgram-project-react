@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions, status
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializer, FavoriteRecipeSerializer,
-                          ShoppingCartSerializer)
+                          ShoppingCartSerializer, RecipeGetSerializer)
 from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -39,12 +39,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-    #                       IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
     pagination_class = PageNumberPagination
     PageNumberPagination.page_size_query_param = 'limit'
 
+    def get_serializer_class(self):
+        # if self.action == 'favorite':
+        #     return FavoriteRecipeSerializer
+        # if self.action == 'shopping_cart':
+        #     return ShoppingCartSerializer
+        if self.request.method == 'GET':
+            return RecipeGetSerializer
+        return RecipeSerializer
+
     def perform_create(self, serializer):
+        print('perform')
         serializer.save(author=self.request.user)
 
 
@@ -118,7 +128,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredients_count[i.ingredient] = i.amount  # в ключ даем ingredient, в значение - amount
         result = ''
         for ingredient in ingredients_count:
-            print(ingredient, '11111111111111')
             weight = 0
             weight += ingredients_count[ingredient]
             result += (f'{ingredient.name} - {str(weight)} '
