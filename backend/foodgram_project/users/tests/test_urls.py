@@ -1,5 +1,5 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.test import Client, TestCase
 from rest_framework.test import APIClient
 
 
@@ -23,10 +23,10 @@ class UsersURLTests(TestCase):
 
         url_names = {
             '/api/users/': 200,
-            '/api/users/1/': 401,
+            '/api/users/1/': 200,
             '/api/users/subscriptions/': 401,
             '/api/users/1/subscribe/': 401,
-            '/api/users/me/': 401,
+            '/api/users/me/': 200,
         }
 
         for url, status in url_names.items():

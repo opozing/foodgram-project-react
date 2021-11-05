@@ -1,12 +1,12 @@
-from django.db import models
-from django.contrib.auth import get_user_model
 from colorfield.fields import ColorField
+from django.contrib.auth import get_user_model
+from django.db import models
 
 User = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=200, unique=True)
     color = ColorField('Цвет в HEX', default='#FF0000')
     slug = models.SlugField('Уникальный слаг', unique=True, max_length=200)
 
@@ -81,7 +81,8 @@ class FavoriteRecipe(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               verbose_name='Рецепт')
+                               verbose_name='Рецепт',
+                               related_name='favorite_recipe')
 
     class Meta:
         verbose_name = 'Избранный'
@@ -98,7 +99,8 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               verbose_name='Рецепт')
+                               verbose_name='Рецепт',
+                               related_name='shopping_cart')
 
     class Meta:
         verbose_name = 'Список покупок'

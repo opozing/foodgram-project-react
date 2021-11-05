@@ -1,7 +1,8 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from recipes.models import Recipe, Tag, Ingredient
+from django.test import Client, TestCase
 from rest_framework.test import APIClient
+
+from recipes.models import Ingredient, Recipe, Tag
 
 
 class StaticURLTests(TestCase):

@@ -1,8 +1,9 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from recipes.models import Recipe, FavoriteRecipe, ShoppingCart
+from django.test import Client, TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
+
+from recipes.models import FavoriteRecipe, Recipe, ShoppingCart
 
 
 class RecipesViewsTests(TestCase):

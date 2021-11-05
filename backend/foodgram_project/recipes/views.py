@@ -1,18 +1,19 @@
-from .models import (Tag, Ingredient, Recipe, FavoriteRecipe, ShoppingCart,
-                     RecipeIngredient)
 from django.http import HttpResponse
-
-from rest_framework import viewsets, permissions, status
-from .permissions import IsOwnerOrReadOnly
-from .serializers import (TagSerializer, IngredientSerializer,
-                          RecipeSerializer, FavoriteRecipeSerializer,
-                          ShoppingCartSerializer, RecipeGetSerializer)
-from rest_framework.filters import SearchFilter
+# from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
+from django_filters import rest_framework as filters
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
+from .filters import IngredientFilter, RecipeFilter
+from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
+from .permissions import IsOwnerOrReadOnly
+from .serializers import (FavoriteRecipeSerializer, IngredientSerializer,
+                          RecipeGetSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -29,8 +30,10 @@ class IngredientViewSet(viewsets.ModelViewSet):
     """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = [SearchFilter]
-    search_fields = ['^name', ]
+    # filter_backends = [SearchFilter]
+    # search_fields = ['^name', ]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -43,20 +46,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                           IsOwnerOrReadOnly]
     pagination_class = PageNumberPagination
     PageNumberPagination.page_size_query_param = 'limit'
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
-        # if self.action == 'favorite':
-        #     return FavoriteRecipeSerializer
-        # if self.action == 'shopping_cart':
-        #     return ShoppingCartSerializer
         if self.request.method == 'GET':
             return RecipeGetSerializer
         return RecipeSerializer
 
     def perform_create(self, serializer):
-        print('perform')
         serializer.save(author=self.request.user)
-
 
     @action(detail=True, methods=['GET', 'DELETE'],
             permission_classes=[permissions.IsAuthenticated])
@@ -113,19 +112,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         Скачивание списка покупок.
         """
-        shopping_cart = ShoppingCart.objects.filter(user=self.request.user.id) # все обьекты моего списка покупок
-        recipes = []  # создаем пустой список 
+        shopping_cart = ShoppingCart.objects.filter(user=self.request.user.id)
+        recipes = []
         for i in shopping_cart:
-            recipes.append(i.recipe) # добавляем в новый список все обьекты (shopping_cart поле recipe)
+            recipes.append(i.recipe)
         recipe_ingredients = []
         for i in recipes:
             recipe_ingredients += RecipeIngredient.objects.filter(recipe=i)
         ingredients_count = {}
-        for i in recipe_ingredients: # обьекты модели recipe_ingredients
+        for i in recipe_ingredients:
             if i.ingredient in ingredients_count:
                 ingredients_count[i.ingredient] += i.amount
                 break
-            ingredients_count[i.ingredient] = i.amount  # в ключ даем ingredient, в значение - amount
+            ingredients_count[i.ingredient] = i.amount
         result = ''
         for ingredient in ingredients_count:
             weight = 0

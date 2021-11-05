@@ -1,8 +1,9 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
-from recipes.models import (Recipe, FavoriteRecipe, ShoppingCart)
-from recipes.serializers import (ShoppingCartSerializer,
-                                 FavoriteRecipeSerializer)
+from django.test import TestCase
+
+from recipes.models import FavoriteRecipe, Recipe, ShoppingCart
+from recipes.serializers import (FavoriteRecipeSerializer,
+                                 ShoppingCartSerializer)
 
 
 class RecipesSerializerTests(TestCase):

@@ -1,14 +1,13 @@
-from rest_framework import permissions
 from django.contrib.auth import get_user_model
-from .serializers import (ReUserSerializer,
-                          SubscriptionSerializer)
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
-from .models import Subscription
+from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+from .models import Subscription
+from .serializers import ReUserSerializer, SubscriptionSerializer
 
 User = get_user_model()
 
