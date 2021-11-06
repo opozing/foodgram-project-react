@@ -10,22 +10,27 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'measurement_unit')
+    list_display = ('name', 'measurement_unit')
+    list_filter = ('name',)
     empty_value_display = "-пусто-"
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    """Для отображения в админке поля ManyToMany ингредиентов c through"""
-
+    """
+    Для отображения в админке поля ManyToMany ингредиентов c through.
+    """
     model = RecipeIngredient
     extra = 1
 
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline,)
-    list_display = ('id', 'get_tags', 'author', 'get_ingredients',
-                    'name', 'image', 'text', 'cooking_time')
+    list_display = ('author', 'name', 'favorite_count')
+    list_filter = ('author', 'name', 'tags')
     empty_value_display = "-пусто-"
+
+    def favorite_count(self, obj):
+        return FavoriteRecipe.objects.filter(recipe=obj).count()
 
 
 class RecipeIngredientAdmin(admin.ModelAdmin):
@@ -49,4 +54,3 @@ admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(RecipeIngredient, RecipeIngredientAdmin)
 admin.site.register(FavoriteRecipe, FavoriteRecipeAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
-

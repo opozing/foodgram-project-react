@@ -30,8 +30,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    # filter_backends = [SearchFilter]
-    # search_fields = ['^name', ]
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = IngredientFilter
 
