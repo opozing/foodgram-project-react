@@ -131,7 +131,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         unique_ingredients = set()
         for ingredient in ingredients:
-            if ingredient['amount'] < 1:
+            if int(ingredient['amount']) < 1:
                 raise serializers.ValidationError(
                     'Слишком малое количество ингредиента!')
             if ingredient['id'] in unique_ingredients:
