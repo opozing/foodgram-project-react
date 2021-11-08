@@ -41,4 +41,4 @@ jobs:
       with:
         push: true
         context: backend/foodgram_project/
-        tags: opozing/foodgram:latest
+        tags: opozing/backend:latest
