@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Recipe
 from rest_framework import serializers
+
+from recipes.models import Recipe
 
 from .models import Subscription
 
@@ -22,9 +23,12 @@ class ReUserSerializer(UserSerializer):
         """
         Статус подписки пользователя на юзеров.
         """
-        request_user = self.context.get('request').user.id
-        queryset = Subscription.objects.filter(author=obj.id,
-                                               follower=request_user).exists()
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        queryset = Subscription.objects.filter(
+            author=obj.id,
+            follower=request.user.id).exists()
         return queryset
 
 
@@ -75,9 +79,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         """
         Статус подписки пользователя на юзеров.
         """
-        request_user = self.context.get('request').user.id
-        queryset = Subscription.objects.filter(author=obj.author,
-                                               follower=request_user).exists()
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        queryset = Subscription.objects.filter(
+            author=obj.id,
+            follower=request.user.id).exists()
         return queryset
 
     def get_recipes(self, obj):

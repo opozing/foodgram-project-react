@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+
 from recipes.models import FavoriteRecipe, Recipe, ShoppingCart
 from recipes.serializers import (FavoriteRecipeSerializer,
                                  ShoppingCartSerializer)

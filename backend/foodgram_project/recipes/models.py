@@ -52,12 +52,6 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
-    def get_tags(self):
-        return ', '.join([p.name for p in self.tags.all()])
-
-    def get_ingredients(self):
-        return ', '.join([p.name for p in self.ingredients.all()])
-
 
 class RecipeIngredient(models.Model):
     """
@@ -72,9 +66,11 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
+        constraints = [models.UniqueConstraint(fields=['recipe', 'ingredient'],
+                                               name='unique_recipeingredient')]
 
     def __str__(self):
-        return str(self.amount)
+        return str(self.ingredient)
 
 
 class FavoriteRecipe(models.Model):
@@ -87,7 +83,6 @@ class FavoriteRecipe(models.Model):
     class Meta:
         verbose_name = 'Избранный'
         verbose_name_plural = 'Избранные'
-
         constraints = [models.UniqueConstraint(fields=['user', 'recipe'],
                                                name='unique_favorite')]
 
@@ -97,15 +92,15 @@ class FavoriteRecipe(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             verbose_name='Пользователь')
+                             verbose_name='Пользователь',
+                             related_name='shop_cart')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                verbose_name='Рецепт',
-                               related_name='shopping_cart')
+                               related_name='shop_cart')
 
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
-
         constraints = [models.UniqueConstraint(fields=['user', 'recipe'],
                                                name='unique_shoppingcart')]
 

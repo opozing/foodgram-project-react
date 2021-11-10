@@ -110,32 +110,39 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         Скачивание списка покупок.
         """
-        shopping_cart = ShoppingCart.objects.filter(user=self.request.user.id)
-        recipes = []
-        for i in shopping_cart:
-            recipes.append(i.recipe)
-        recipe_ingredients = []
-        for i in recipes:
-            recipe_ingredients += RecipeIngredient.objects.filter(recipe=i)
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shop_cart__user=request.user)
+
         ingredients_count = {}
-        for i in recipe_ingredients:
-            if i.ingredient in ingredients_count:
-                ingredients_count[i.ingredient] += i.amount
-                break
-            ingredients_count[i.ingredient] = i.amount
+        for recipe_ingredient in ingredients:
+            if recipe_ingredient.ingredient in ingredients_count:
+                ingredients_count[recipe_ingredient.ingredient] += (
+                    recipe_ingredient.amount)
+            else:
+                ingredients_count[recipe_ingredient.ingredient] = (
+                    recipe_ingredient.amount)
+
         result = ''
         for ingredient in ingredients_count:
             weight = 0
             weight += ingredients_count[ingredient]
             result += (f'{ingredient.name} - {str(weight)} '
                        f'{ingredient.measurement_unit}.')
-        download = open("buy_list.txt", "w+")
-        download.write(result)
-        download.close()
-        read_file = open("buy_list.txt", "r")
-        response = HttpResponse(read_file.read(),
-                                content_type="text/plain,charset=utf8")
-        read_file.close()
+        # download = open("buy_list.txt", "w+")
+        # download.write(result)
+        # download.close()
+        # read_file = open("buy_list.txt", "r")
+        # response = HttpResponse(read_file.read(),
+        #                         content_type="text/plain,charset=utf8")
+        # read_file.close()
+        # response['Content-Disposition'] = (
+        #     'attachment; filename="{}.txt"'.format('file_name'))
+        # return response
+
+        download = 'buy_list.txt'
+        response = HttpResponse(
+            result, content_type="text/plain,charset=utf8")
         response['Content-Disposition'] = (
-            'attachment; filename="{}.txt"'.format('file_name'))
+            'attachment; filename={0}'.format(download)
+        )
         return response

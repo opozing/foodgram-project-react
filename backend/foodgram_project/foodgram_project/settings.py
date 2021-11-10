@@ -2,7 +2,8 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '#fd5((u6ihm(eg(0nxx_ae!dz4%s@9)+7suj-9!6uuzj7j9im*'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = '#fd5((u6ihm(eg(0nxx_ae!dz4%s@9)+7suj-9!6uuzj7j9im*'
 
 DEBUG = True
 
@@ -53,14 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram_project.wsgi.application'
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', default='django.db.backends.postgresql'),
@@ -71,6 +64,13 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', default='5432')
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

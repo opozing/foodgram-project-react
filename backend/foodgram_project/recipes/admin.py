@@ -17,7 +17,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class RecipeIngredientInline(admin.TabularInline):
     """
-    Для отображения в админке поля ManyToMany ингредиентов c through.
+    Для отображения в админке поля ManyToMany ингредиентов в рецепте c through.
     """
     model = RecipeIngredient
     extra = 1

@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-# from django.shortcuts import get_object_or_404
-from users.serializers import ReUserSerializer
 
+from users.serializers import ReUserSerializer
 from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 
@@ -102,11 +101,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
                   'text', 'cooking_time')
 
-    def validate(self, data):
+    def validate_cooking_time(self, data):
         """
-        Валидация общая.
+        Валидация поля время приготовления.
         """
-        if data['cooking_time'] < 1:
+        if data < 1:
             raise serializers.ValidationError(
                 'Время приготовления указано не верно!')
         return data
@@ -148,8 +147,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
-        # print('validated_data------', validated_data)
-        # print('initial_data-----', self.initial_data)
         ingredients = self.initial_data.get('ingredients')
         validated_data.pop('recipe_ingredient')
         tags = validated_data.pop('tags')
