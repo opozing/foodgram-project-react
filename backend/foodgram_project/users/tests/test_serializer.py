@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-
 from users.models import Subscription
 from users.serializers import SubscriptionSerializer
 
