@@ -128,16 +128,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             weight += ingredients_count[ingredient]
             result += (f'{ingredient.name} - {str(weight)} '
                        f'{ingredient.measurement_unit}.')
-        # download = open("buy_list.txt", "w+")
-        # download.write(result)
-        # download.close()
-        # read_file = open("buy_list.txt", "r")
-        # response = HttpResponse(read_file.read(),
-        #                         content_type="text/plain,charset=utf8")
-        # read_file.close()
-        # response['Content-Disposition'] = (
-        #     'attachment; filename="{}.txt"'.format('file_name'))
-        # return response
 
         download = 'buy_list.txt'
         response = HttpResponse(
