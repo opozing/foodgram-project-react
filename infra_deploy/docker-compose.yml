@@ -9,6 +9,7 @@ services:
     env_file: 
       - ./.env
 
+
   frontend:
     image: opozing/frontend:v1
     restart: always
