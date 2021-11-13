@@ -15,8 +15,6 @@ services:
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - db
 
   backend:
     image: opozing/backend:latest
