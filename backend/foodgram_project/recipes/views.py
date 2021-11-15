@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-# from rest_framework.filters import SearchFilter
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import permissions, status, viewsets
@@ -111,23 +110,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         Скачивание списка покупок.
         """
         ingredients = RecipeIngredient.objects.filter(
-            recipe__shop_cart__user=request.user)
+            recipe__shop_cart__user=request.user).values_list(
+                'ingredient__name',
+                'amount',
+                'ingredient__measurement_unit',)
 
         ingredients_count = {}
-        for recipe_ingredient in ingredients:
-            if recipe_ingredient.ingredient in ingredients_count:
-                ingredients_count[recipe_ingredient.ingredient] += (
-                    recipe_ingredient.amount)
+        for ingredient in ingredients:
+            name = ingredient[0]
+            amount = ingredient[1]
+            measurement = ingredient[2]
+
+            if name not in ingredients_count:
+                ingredients_count[name] = {
+                    'amount': amount,
+                    'measurement': measurement}
             else:
-                ingredients_count[recipe_ingredient.ingredient] = (
-                    recipe_ingredient.amount)
+                ingredients_count[name]['amount'] += amount
 
         result = ''
-        for ingredient in ingredients_count:
-            weight = 0
-            weight += ingredients_count[ingredient]
-            result += (f'{ingredient.name} - {str(weight)} '
-                       f'{ingredient.measurement_unit}.')
+        for name, values in ingredients_count.items():
+            result += (f'{name} - {values["amount"]} '
+                       f'{values["measurement"]}. ')
 
         download = 'buy_list.txt'
         response = HttpResponse(
