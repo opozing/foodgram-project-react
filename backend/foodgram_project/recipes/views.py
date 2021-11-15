@@ -113,7 +113,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__shop_cart__user=request.user).values_list(
                 'ingredient__name',
                 'amount',
-                'ingredient__measurement_unit',)
+                'ingredient__measurement_unit')
 
         ingredients_count = {}
         for ingredient in ingredients:
