@@ -20,5 +20,4 @@ class ReUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, ReUserAdmin)
-
 admin.site.register(Subscription, SubscriptionAdmin)
