@@ -156,8 +156,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-
         tags = validated_data.pop('tags')
         validated_data.pop('recipe_ingredient')
         ingredients = self.initial_data.get('ingredients')
