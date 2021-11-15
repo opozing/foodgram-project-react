@@ -163,7 +163,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         self.create_recipe_ingredient(ingredients, instance)
         instance = super().validated_data
-        # instance.save()
         return instance
 
 
