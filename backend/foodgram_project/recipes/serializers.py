@@ -91,7 +91,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                                              many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    image = Base64ImageField(source='recipe.image')
+    image = Base64ImageField()
     name = serializers.CharField(validators=[UniqueValidator(
         queryset=Recipe.objects.all(),
         message='Такой рецепт уже существует!')])
